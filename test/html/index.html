@@ -1,0 +1,31 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Instant.js tests</title>
+  <link href="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.css" rel="stylesheet" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
+  <script src="https://cdn.rawgit.com/Automattic/expect.js/0.3.1/index.js"></script>
+  <script src="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.js"></script>
+
+  <script src="/setup/assert.js"></script>
+  <script src="/setup/sinon.js"></script>
+  <script src="/setup/loader.js"></script>
+  <script>
+    (async () => {
+      // loader.prefix('core', '../src/')
+      // loader.prefix('test', '../')
+      window.Instant = await loader.require('src/instant');
+      mocha.setup('bdd');
+
+      await loader.require('test/sandbox.spec');
+
+      mocha.checkLeaks();
+      mocha.run();
+    })();
+  </script>
+</body>
+</html>
