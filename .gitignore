@@ -5,6 +5,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
 # Runtime data
 pids
 *.pid
