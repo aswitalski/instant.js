@@ -12,8 +12,7 @@ describe('Sandbox', () => {
 
       // given
       const component = new Component(1);
-      const sandbox = Instant.createSandbox();
-      const model = sandbox.proxify({
+      const sandbox = Instant.createSandbox({
         id: 666,
         header: 'Header',
         footer: 'Footer',
@@ -21,10 +20,10 @@ describe('Sandbox', () => {
 
       // when
       sandbox.record(component);
-      
-      model.id;
-      model.header;
-      model.footer;
+
+      sandbox.model.id;
+      sandbox.model.header;
+      sandbox.model.footer;
 
       sandbox.done();
 
@@ -37,8 +36,7 @@ describe('Sandbox', () => {
 
       // given
       const component = new Component(2);
-      const sandbox = Instant.createSandbox();
-      const model = sandbox.proxify({
+      const sandbox = Instant.createSandbox({
         a: 'A',
         b: 'B',
         c: 'C',
@@ -46,7 +44,7 @@ describe('Sandbox', () => {
 
       // when
       sandbox.record(component);
-      Object.keys(model).forEach(prop => model[prop]);
+      Object.keys(sandbox.model).forEach(prop => sandbox.model[prop]);
       sandbox.done();
 
       // then

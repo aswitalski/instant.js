@@ -104,7 +104,7 @@
 
   class ArrayProxy extends InstantProxy {
 
-    constructor(source, sandbox) {
+    constructor(state, sandbox) {
       super(sandbox);
       throw new Error('Not implemented!');
     }
@@ -112,22 +112,55 @@
 
   class Sandbox {
 
-    constructor() {
+    constructor(state) {
+
+      /** Indicates what operation is ongoing. */
       this.mode = Mode.IDLE;
-      this.source = null;
-      this.observer = null;
+
+      /** State object. */
+      this.state = state;
+
+      /** List of managed proxies. */
       this.proxies = [];
-      this.map = new Map();
+
+      /** Observable model. */
+      this.model = this.proxify(state);
+
+      /** Currently recorded observer. */
+      this.observer = null;
+
+      /** Observer to Dependencies mapping. */
+      this.registry = new Map();
+
+      /** Unique list of observers pending update. */
       this.pending = new Set();
     }
 
+    /** Creates a proxy and adds it to the list of managed proxies. */
+    proxify(state) {
+      let proxy = this.createProxy(state);
+      this.proxies.push(proxy);
+      return proxy;
+    }
+
+    /** Creates a proxy for given source. */
+    createProxy(source) {
+      if (Array.isArray(source)) {
+        return new ArrayProxy(source, this);
+      }
+      if (source.constructor === Object) {
+        return new ObjectProxy(source, this);
+      }
+      throw new Error('Unsupported object type');
+    }
+
     dependencies(observer) {
-      let deps = this.map.get(observer);
+      let deps = this.registry.get(observer);
       if (deps) {
         return deps;
       }
       deps = new Dependencies(observer);
-      this.map.set(observer, deps);
+      this.registry.set(observer, deps);
       return deps;
     }
 
@@ -138,7 +171,7 @@
 
     queue(amendment) {
       // console.log('  - write:', amendment.type, amendment.props);
-      for (const entry of this.map.entries()) {
+      for (const entry of this.registry.entries()) {
         const [observer, dependencies] = entry;
         if (dependencies.isInterested(amendment)) {
           if (this.pending.size === 0) {
@@ -154,16 +187,6 @@
       this.dependencies(this.observer).add(dependency);
     }
 
-    createProxy(source) {
-      if (Array.isArray(source)) {
-        return new ArrayProxy(source, this);
-      }
-      if (source.constructor === Object) {
-        return new ObjectProxy(source, this);
-      }
-      throw new Error('Unsupported object type');
-    }
-
     record(observer) {
       this.mode = Mode.RECORD;
       this.observer = observer;
@@ -173,20 +196,13 @@
       this.mode = Mode.LISTEN;
       this.observer = null;
     }
-
-    proxify(source) {
-      this.source = source;
-      let proxy = this.createProxy(source);
-      this.proxies.push(proxy);
-      return proxy;
-    }
   }
 
   class Instant {
 
-    static createSandbox() {
-      const sandbox = new Sandbox();
-      return sandbox;
+    /** Creates a new sandbox for given state. */
+    static createSandbox(state) {
+      return new Sandbox(state);
     }
   }
 
