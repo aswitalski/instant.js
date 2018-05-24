@@ -1,4 +1,6 @@
 {
+  const origin = Symbol('origin');
+
   const Read = {
     GET: 'get',
     KEYS: 'keys',
@@ -85,6 +87,9 @@
           return true;
         },
         get: (target, prop) => {
+          if (prop === origin) {
+            return this;
+          }
           const value = target[prop];
           if (sandbox.mode === Mode.RECORD) {
             this.onRead(Read.GET, {prop, value});
@@ -95,8 +100,14 @@
           if (sandbox.mode === Mode.RECORD) {
             this.onRead(Read.KEYS);
           }
-          return Reflect.ownKeys(target);
+          return [...Reflect.ownKeys(target), origin];
         },
+        getOwnPropertyDescriptor: (target, prop) => {
+          if (prop === origin) {
+            return { configurable: true, enumerable: true };
+          }
+          return Reflect.getOwnPropertyDescriptor(target, prop);
+        }
       });
       return this.proxy;
     }
