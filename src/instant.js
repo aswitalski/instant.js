@@ -171,8 +171,7 @@
 
     queue(amendment) {
       // console.log('  - write:', amendment.type, amendment.props);
-      for (const entry of this.registry.entries()) {
-        const [observer, dependencies] = entry;
+      for (const [observer, dependencies] of this.registry.entries()) {
         if (dependencies.isInterested(amendment)) {
           if (this.pending.size === 0) {
             setTimeout(() => this.notify());
@@ -192,7 +191,7 @@
       this.observer = observer;
     }
 
-    done() {
+    stop() {
       this.mode = Mode.LISTEN;
       this.observer = null;
     }

@@ -1,4 +1,4 @@
-class Component {
+class Observer {
   constructor(id) {
     this.id = id;
   }
@@ -11,7 +11,7 @@ describe('Sandbox', () => {
     it('supports "get" property operation', () => {
 
       // given
-      const component = new Component(1);
+      const observer = new Observer(1);
       const sandbox = Instant.createSandbox({
         id: 666,
         header: 'Header',
@@ -19,23 +19,23 @@ describe('Sandbox', () => {
       });
 
       // when
-      sandbox.record(component);
+      sandbox.record(observer);
 
       sandbox.model.id;
       sandbox.model.header;
       sandbox.model.footer;
 
-      sandbox.done();
+      sandbox.stop();
 
       // then
       assert.equal(sandbox.proxies.length, 1);
-      assert.equal(sandbox.dependencies(component).size, 3);
+      assert.equal(sandbox.dependencies(observer).size, 3);
     });
 
     it('supports "own keys" operation', () => {
 
       // given
-      const component = new Component(2);
+      const observer = new Observer(2);
       const sandbox = Instant.createSandbox({
         a: 'A',
         b: 'B',
@@ -43,13 +43,38 @@ describe('Sandbox', () => {
       });
 
       // when
-      sandbox.record(component);
+      sandbox.record(observer);
       Object.keys(sandbox.model).forEach(prop => sandbox.model[prop]);
-      sandbox.done();
+      sandbox.stop();
 
       // then
       assert.equal(sandbox.proxies.length, 1);
-      assert.equal(sandbox.dependencies(component).size, 4);
+      assert.equal(sandbox.dependencies(observer).size, 4);
+    });
+
+    it('supports reusing proxy for different observers', () => {
+
+      // given
+      const firstObserver = new Observer(1);
+      const secondObserver = new Observer(2);
+      const sandbox = Instant.createSandbox({
+        foo: 'foo',
+        bar: 'bar',
+      });
+
+      // when
+      sandbox.record(firstObserver);
+      sandbox.model.foo;
+      sandbox.stop();
+
+      sandbox.record(secondObserver);
+      sandbox.model.bar;
+      sandbox.stop();
+
+      // then
+      assert.equal(sandbox.proxies.length, 1);
+      assert.equal(sandbox.dependencies(firstObserver).size, 1);
+      assert.equal(sandbox.dependencies(secondObserver).size, 1);
     });
   });
 });
