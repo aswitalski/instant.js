@@ -192,7 +192,7 @@
       this.observer = observer;
     }
 
-    done() {
+    stop() {
       this.mode = Mode.LISTEN;
       this.observer = null;
     }

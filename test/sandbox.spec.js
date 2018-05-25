@@ -25,7 +25,7 @@ describe('Sandbox', () => {
       sandbox.model.header;
       sandbox.model.footer;
 
-      sandbox.done();
+      sandbox.stop();
 
       // then
       assert.equal(sandbox.proxies.length, 1);
@@ -45,7 +45,7 @@ describe('Sandbox', () => {
       // when
       sandbox.record(component);
       Object.keys(sandbox.model).forEach(prop => sandbox.model[prop]);
-      sandbox.done();
+      sandbox.stop();
 
       // then
       assert.equal(sandbox.proxies.length, 1);
