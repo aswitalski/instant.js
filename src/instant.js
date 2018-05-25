@@ -165,7 +165,9 @@
     }
 
     notify() {
-      console.log('Updated components:', this.pending.size);
+      if (this.listener) {
+        this.listener([...this.pending]);
+      }
       this.pending.clear();
     }
 
@@ -192,6 +194,12 @@
       this.observer = observer;
     }
 
+    listen(listener) {
+      console.assert(
+          typeof listener === 'function', 'The listener must be a function');
+      this.listener = listener;
+    }
+
     stop() {
       this.mode = Mode.LISTEN;
       this.observer = null;
@@ -202,6 +210,9 @@
 
     /** Creates a new sandbox for given state. */
     static createSandbox(state) {
+      if (!state) {
+        throw new Error('The initial state object is mandatory');
+      }
       return new Sandbox(state);
     }
   }
